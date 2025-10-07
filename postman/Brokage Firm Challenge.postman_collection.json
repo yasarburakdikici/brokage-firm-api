@@ -1,0 +1,213 @@
+{
+	"info": {
+		"_postman_id": "e38ba9e2-57ac-42b4-b1e7-35610881b4f3",
+		"name": "Brokage Firm Challenge",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "13180666"
+	},
+	"item": [
+		{
+			"name": "Create Order",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "pass",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "accept",
+						"value": "*/*"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"customer\": \"CUST002\",\n  \"side\": \"SELL\",\n  \"asset\": \"TST\",\n  \"size\": 15,\n  \"price\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/api/order",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"order"
+					]
+				},
+				"description": "Generated from cURL: curl -X 'POST' \\\n  'http://localhost:8080/api/orders' \\\n  -H 'accept: */*' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n  \n  \"side\": \"BUY\",\n  \"asset\": \"string\",\n  \"size\": 9007199254740991,\n  \"price\": 0.01\n}'"
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Order",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "pass",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "accept",
+						"value": "*/*"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{host}}/api/order/CUST002",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"order",
+						"CUST002"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Order",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "pass",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "accept",
+						"value": "*/*"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{host}}/api/order/list?customer=CUST002&startDate=2025-10-07T17:04:28Z&endDate=2025-11-07T17:04:28Z",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"order",
+						"list"
+					],
+					"query": [
+						{
+							"key": "customer",
+							"value": "CUST002"
+						},
+						{
+							"key": "startDate",
+							"value": "2025-10-07T17:04:28Z"
+						},
+						{
+							"key": "endDate",
+							"value": "2025-11-07T17:04:28Z"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "List Asset",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "pass",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "admin",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/api/asset/list?customerId=CUST002",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"api",
+						"asset",
+						"list"
+					],
+					"query": [
+						{
+							"key": "customerId",
+							"value": "CUST002"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
