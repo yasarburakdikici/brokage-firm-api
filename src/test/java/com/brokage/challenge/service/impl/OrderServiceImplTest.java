@@ -4,6 +4,7 @@ import com.brokage.challenge.dto.CreateOrder;
 import com.brokage.challenge.entity.Order;
 import com.brokage.challenge.enums.OrderSide;
 import com.brokage.challenge.enums.OrderStatus;
+import com.brokage.challenge.exception.BrokageFirmApiException;
 import com.brokage.challenge.exception.InvalidOrderException;
 import com.brokage.challenge.repository.OrderRepository;
 import com.brokage.challenge.service.CreateOrderProcessor;
@@ -175,6 +176,105 @@ class OrderServiceImplTest {
         // assert
         assertThat(result).isEqualTo(expectedOrders);
         verify(orderRepository, times(1)).findByCustomerIdAndCreateDateBetween(TEST_CUSTOMER, startDate, endDate);
+    }
+
+    private Order prepareOrder() {
+        return Order.builder()
+                .id(TEST_ORDER_ID)
+                .customerId(TEST_CUSTOMER)
+                .assetName(TEST_ASSET)
+                .orderSide(OrderSide.BUY)
+                .size(TEST_SIZE)
+                .price(TEST_PRICE)
+                .status(OrderStatus.PENDING)
+                .createDate(Instant.now())
+                .build();
+    }
+
+    @Test
+    @DisplayName("createOrder should throw IllegalArgumentException when processorMap returns null")
+    void createOrder_WhenProcessorMapReturnsNull_ShouldThrowIllegalArgumentException() {
+        // arrange
+        // Create a request with a side that won't be found in processorMap
+        CreateOrder request = new CreateOrder(TEST_CUSTOMER, null, TEST_ASSET, TEST_SIZE, TEST_PRICE);
+
+        // act & assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, 
+            () -> orderService.createOrder(request));
+        
+        assertThat(exception.getMessage()).contains("Unsupported order side");
+    }
+
+    @Test
+    @DisplayName("createOrder should throw BrokageFirmApiException when processor throws unexpected exception")
+    void createOrder_WhenProcessorThrowsUnexpectedException_ShouldThrowBrokageFirmApiException() {
+        // arrange
+        CreateOrder request = prepareCreateOrder(OrderSide.BUY);
+        RuntimeException unexpectedException = new RuntimeException("Database connection failed");
+        
+        when(buyProcessor.process(request)).thenThrow(unexpectedException);
+
+        // act & assert
+        BrokageFirmApiException exception = assertThrows(BrokageFirmApiException.class, 
+            () -> orderService.createOrder(request));
+        
+        assertThat(exception.getMessage()).contains("Order creation failed due to system error");
+        assertThat(exception.getCause()).isEqualTo(unexpectedException);
+    }
+
+    @Test
+    @DisplayName("listOrders should throw BrokageFirmApiException when repository throws exception")
+    void listOrders_WhenRepositoryThrowsException_ShouldThrowBrokageFirmApiException() {
+        // arrange
+        Instant startDate = Instant.now().minusSeconds(3600);
+        Instant endDate = Instant.now();
+        RuntimeException repositoryException = new RuntimeException("Database error");
+        
+        when(orderRepository.findByCustomerIdAndCreateDateBetween(TEST_CUSTOMER, startDate, endDate))
+            .thenThrow(repositoryException);
+
+        // act & assert
+        BrokageFirmApiException exception = assertThrows(BrokageFirmApiException.class, 
+            () -> orderService.listOrders(TEST_CUSTOMER, startDate, endDate));
+        
+        assertThat(exception.getMessage()).contains("Failed to list orders due to system error");
+        assertThat(exception.getCause()).isEqualTo(repositoryException);
+    }
+
+    @Test
+    @DisplayName("deleteOrder should throw BrokageFirmApiException when repository throws unexpected exception")
+    void deleteOrder_WhenRepositoryThrowsUnexpectedException_ShouldThrowBrokageFirmApiException() {
+        // arrange
+        Order order = prepareOrder();
+        RuntimeException repositoryException = new RuntimeException("Database connection lost");
+        
+        when(orderRepository.findById(TEST_ORDER_ID)).thenReturn(Optional.of(order));
+        doThrow(repositoryException).when(orderRepository).delete(order);
+
+        // act & assert
+        BrokageFirmApiException exception = assertThrows(BrokageFirmApiException.class, 
+            () -> orderService.deleteOrder(TEST_ORDER_ID));
+        
+        assertThat(exception.getMessage()).contains("Order deletion failed due to system error");
+        assertThat(exception.getCause()).isEqualTo(repositoryException);
+    }
+
+    @Test
+    @DisplayName("deleteOrder should throw BrokageFirmApiException when assetUpdateManager throws exception")
+    void deleteOrder_WhenAssetUpdateManagerThrowsException_ShouldThrowBrokageFirmApiException() {
+        // arrange
+        Order order = prepareOrder();
+        RuntimeException assetException = new RuntimeException("Asset service unavailable");
+        
+        when(orderRepository.findById(TEST_ORDER_ID)).thenReturn(Optional.of(order));
+        doThrow(assetException).when(assetUpdateManager).refundUsableBalanceForCancellation(order);
+
+        // act & assert
+        BrokageFirmApiException exception = assertThrows(BrokageFirmApiException.class, 
+            () -> orderService.deleteOrder(TEST_ORDER_ID));
+        
+        assertThat(exception.getMessage()).contains("Order deletion failed due to system error");
+        assertThat(exception.getCause()).isEqualTo(assetException);
     }
 }
 

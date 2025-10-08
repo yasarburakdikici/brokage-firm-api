@@ -5,6 +5,7 @@ import com.brokage.challenge.entity.Asset;
 import com.brokage.challenge.entity.Order;
 import com.brokage.challenge.enums.OrderSide;
 import com.brokage.challenge.enums.OrderStatus;
+import com.brokage.challenge.exception.BrokageFirmApiException;
 import com.brokage.challenge.exception.InvalidCustomerException;
 import com.brokage.challenge.repository.AssetRepository;
 import com.brokage.challenge.repository.OrderRepository;
@@ -122,5 +123,54 @@ class BuyCreateOrderProcessorTest {
         InvalidCustomerException ex = assertThrows(InvalidCustomerException.class, () -> processor.process(request));
         assertThat(ex.getMessage()).contains("Insufficient TRY balance for customer " + TEST_CUSTOMER);
         verifyNoInteractions(orderRepository);
+    }
+
+    @Test
+    @DisplayName("process should throw BrokageFirmApiException when repository throws unexpected exception")
+    void process_WhenRepositoryThrowsUnexpectedException_ShouldThrowBrokageFirmApiException() {
+        // arrange
+        CreateOrder request = new CreateOrder(TEST_CUSTOMER, OrderSide.BUY, TEST_ASSET, TEST_SIZE, TEST_PRICE);
+        Asset tryAsset = Asset.builder()
+                .customerId(TEST_CUSTOMER)
+                .assetName("TRY")
+                .size(TEST_TRY_BALANCE)
+                .usableSize(TEST_TRY_BALANCE)
+                .build();
+        
+        when(assetRepository.findByCustomerIdAndAssetName(TEST_CUSTOMER, "TRY")).thenReturn(Optional.of(tryAsset));
+        RuntimeException repositoryException = new RuntimeException("Database connection failed");
+        when(assetRepository.save(any(Asset.class))).thenThrow(repositoryException);
+
+        // act & assert
+        BrokageFirmApiException exception = assertThrows(BrokageFirmApiException.class, 
+            () -> processor.process(request));
+        
+        assertThat(exception.getMessage()).contains("BUY order processing failed due to system error");
+        assertThat(exception.getCause()).isEqualTo(repositoryException);
+    }
+
+    @Test
+    @DisplayName("process should throw BrokageFirmApiException when orderRepository throws exception")
+    void process_WhenOrderRepositoryThrowsException_ShouldThrowBrokageFirmApiException() {
+        // arrange
+        CreateOrder request = new CreateOrder(TEST_CUSTOMER, OrderSide.BUY, TEST_ASSET, TEST_SIZE, TEST_PRICE);
+        Asset tryAsset = Asset.builder()
+                .customerId(TEST_CUSTOMER)
+                .assetName("TRY")
+                .size(TEST_TRY_BALANCE)
+                .usableSize(TEST_TRY_BALANCE)
+                .build();
+        
+        when(assetRepository.findByCustomerIdAndAssetName(TEST_CUSTOMER, "TRY")).thenReturn(Optional.of(tryAsset));
+        when(assetRepository.save(any(Asset.class))).thenReturn(tryAsset);
+        RuntimeException orderRepositoryException = new RuntimeException("Order repository error");
+        when(orderRepository.save(any(Order.class))).thenThrow(orderRepositoryException);
+
+        // act & assert
+        BrokageFirmApiException exception = assertThrows(BrokageFirmApiException.class, 
+            () -> processor.process(request));
+        
+        assertThat(exception.getMessage()).contains("BUY order processing failed due to system error");
+        assertThat(exception.getCause()).isEqualTo(orderRepositoryException);
     }
 }

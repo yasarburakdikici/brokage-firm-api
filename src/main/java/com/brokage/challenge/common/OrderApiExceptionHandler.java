@@ -16,13 +16,13 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.brokage.challenge.exception.OrderApiException;
+import com.brokage.challenge.exception.BrokageFirmApiException;
 
 @RestControllerAdvice
 public class OrderApiExceptionHandler {
 
-    @ExceptionHandler(OrderApiException.class)
-    public ResponseEntity<OrderApiErrorResponse> handleGenericError(OrderApiException exception) {
+    @ExceptionHandler(BrokageFirmApiException.class)
+    public ResponseEntity<OrderApiErrorResponse> handleGenericError(BrokageFirmApiException exception) {
         return ResponseEntity
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(new OrderApiErrorResponse("Internal Server Error", null));

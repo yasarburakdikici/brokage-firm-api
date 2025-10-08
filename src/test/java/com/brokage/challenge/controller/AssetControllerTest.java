@@ -2,6 +2,7 @@ package com.brokage.challenge.controller;
 
 import com.brokage.challenge.dto.AssetResponse;
 import com.brokage.challenge.entity.Asset;
+import com.brokage.challenge.exception.BrokageFirmApiException;
 import com.brokage.challenge.service.AssetService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,6 +53,21 @@ class AssetControllerTest {
         assertThat(resp.assetName()).isEqualTo(TEST_ASSET);
         assertThat(resp.totalSize()).isEqualTo(TEST_SIZE);
         assertThat(resp.usableSize()).isEqualTo(TEST_USABLE);
+    }
+
+    @Test
+    @DisplayName("listAssets should throw BrokageFirmApiException when service throws exception")
+    void listAssets_WhenServiceThrowsException_ShouldThrowBrokageFirmApiException() {
+        // arrange
+        RuntimeException serviceException = new RuntimeException("Service unavailable");
+        when(assetService.listAssets(TEST_CUSTOMER)).thenThrow(serviceException);
+
+        // act & assert
+        BrokageFirmApiException exception = assertThrows(BrokageFirmApiException.class, 
+            () -> assetController.listAssets(TEST_CUSTOMER));
+        
+        assertThat(exception.getMessage()).contains("Asset list request failed due to system error");
+        assertThat(exception.getCause()).isEqualTo(serviceException);
     }
 }
 

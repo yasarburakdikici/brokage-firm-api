@@ -1,6 +1,7 @@
 package com.brokage.challenge.service.impl;
 
 import com.brokage.challenge.entity.Asset;
+import com.brokage.challenge.exception.BrokageFirmApiException;
 import com.brokage.challenge.exception.InvalidAssetException;
 import com.brokage.challenge.repository.AssetRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -100,6 +101,37 @@ class AssetServiceImplTest {
         assertThat(result).hasSize(2);
         assertThat(result.get(0).getCustomerId()).isEqualTo(TEST_CUSTOMER);
         assertThat(result.get(1).getCustomerId()).isEqualTo(TEST_CUSTOMER);
+    }
+
+    @Test
+    @DisplayName("increaseUsableSize should throw BrokageFirmApiException when repository throws unexpected exception")
+    void increaseUsableSize_WhenRepositoryThrowsUnexpectedException_ShouldThrowBrokageFirmApiException() {
+        // arrange
+        RuntimeException repositoryException = new RuntimeException("Database connection failed");
+        when(assetRepository.findByCustomerIdAndAssetName(TEST_CUSTOMER, TEST_ASSET1))
+            .thenThrow(repositoryException);
+
+        // act & assert
+        BrokageFirmApiException exception = assertThrows(BrokageFirmApiException.class, 
+            () -> assertService.increaseUsableSize(TEST_CUSTOMER, TEST_ASSET1, TEST_AMOUNT));
+        
+        assertThat(exception.getMessage()).contains("Failed to increase usable size due to system error");
+        assertThat(exception.getCause()).isEqualTo(repositoryException);
+    }
+
+    @Test
+    @DisplayName("listAssets should throw BrokageFirmApiException when repository throws exception")
+    void listAssets_WhenRepositoryThrowsException_ShouldThrowBrokageFirmApiException() {
+        // arrange
+        RuntimeException repositoryException = new RuntimeException("Database error");
+        when(assetRepository.findByCustomerId(TEST_CUSTOMER)).thenThrow(repositoryException);
+
+        // act & assert
+        BrokageFirmApiException exception = assertThrows(BrokageFirmApiException.class, 
+            () -> assertService.listAssets(TEST_CUSTOMER));
+        
+        assertThat(exception.getMessage()).contains("Failed to list assets due to system error");
+        assertThat(exception.getCause()).isEqualTo(repositoryException);
     }
 }
 
