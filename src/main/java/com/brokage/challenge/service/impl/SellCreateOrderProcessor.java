@@ -13,7 +13,6 @@ import com.brokage.challenge.service.CreateOrderProcessor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 
 @Service
@@ -40,14 +39,14 @@ public class SellCreateOrderProcessor implements CreateOrderProcessor {
                         request.customer() + " does not have a " + request.asset() + " asset."
                 ));
 
-        if (assetToSell.getUsableSize().compareTo(BigDecimal.valueOf(request.size())) < 0) {
+        if (assetToSell.getUsableSize() < request.size()) {
             throw new InvalidCustomerException(
                     String.format("Insufficient %s balance for customer %s.",
                             request.asset(), request.customer())
             );
         }
 
-        assetToSell.setUsableSize(assetToSell.getUsableSize().subtract(BigDecimal.valueOf(request.size())));
+        assetToSell.setUsableSize(assetToSell.getUsableSize() - request.size());
         assetRepository.save(assetToSell);
 
         return saveOrder(request);

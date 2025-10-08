@@ -33,8 +33,8 @@ class BuyCreateOrderProcessorTest {
     private static final Long TEST_SIZE = 2L;
     private static final BigDecimal TEST_PRICE = new BigDecimal("10.50");
     private static final BigDecimal TEST_TOTAL_COST = new BigDecimal("21.00");
-    private static final BigDecimal TEST_TRY_BALANCE = new BigDecimal("100.00");
-    private static final BigDecimal TEST_INSUFFICIENT_BALANCE = new BigDecimal("10.00");
+    private static final Long TEST_TRY_BALANCE = 100L;
+    private static final Long TEST_INSUFFICIENT_BALANCE = 10L;
 
     @Mock
     private AssetRepository assetRepository;
@@ -87,7 +87,7 @@ class BuyCreateOrderProcessorTest {
 
         // assert
         assertThat(result).isEqualTo(expectedOrder);
-        assertThat(tryAsset.getUsableSize()).isEqualTo(TEST_TRY_BALANCE.subtract(TEST_TOTAL_COST));
+        assertThat(tryAsset.getUsableSize()).isEqualTo(TEST_TRY_BALANCE - TEST_TOTAL_COST.longValue());
         verify(assetRepository, times(1)).save(tryAsset);
         verify(orderRepository, times(1)).save(any(Order.class));
     }

@@ -11,6 +11,7 @@ public class OrderResponseMapper {
 
     public static OrderResponse toOrderResponse(Order order) {
         return new OrderResponse(
+                order.getId(),
                 order.getCustomerId(),
                 order.getAssetName(),
                 order.getOrderSide(),

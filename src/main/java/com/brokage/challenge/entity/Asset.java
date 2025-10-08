@@ -1,6 +1,5 @@
 package com.brokage.challenge.entity;
 
-import java.math.BigDecimal;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,9 +33,9 @@ public class Asset {
     @Column(nullable = false)
     private String assetName;
 
-    @Column(nullable = false, precision = 19, scale = 4)
-    private BigDecimal size;
+    @Column(nullable = false)
+    private Long size;
 
-    @Column(nullable = false, precision = 19, scale = 4)
-    private BigDecimal usableSize;
+    @Column(nullable = false)
+    private Long usableSize;
 }

@@ -10,7 +10,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,12 +23,12 @@ class AssetServiceImplTest {
     // Static test data
     private static final String TEST_CUSTOMER = "cust1";
     private static final String TEST_ASSET = "BTC";
-    private static final BigDecimal TEST_AMOUNT = new BigDecimal("5.00");
-    private static final BigDecimal TEST_INITIAL = new BigDecimal("10.00");
+    private static final Long TEST_AMOUNT = 5L;
+    private static final Long TEST_INITIAL = 10L;
     private static final String TEST_ASSET1 = "BTC";
     private static final String TEST_ASSET2 = "ETH";
-    private static final BigDecimal TEST_SIZE = new BigDecimal("10.00");
-    private static final BigDecimal TEST_USABLE = new BigDecimal("7.50");
+    private static final Long TEST_SIZE = 10L;
+    private static final Long TEST_USABLE = 7L;
 
     @Mock
     private AssetRepository assetRepository;
@@ -58,7 +57,7 @@ class AssetServiceImplTest {
         assertService.increaseUsableSize(TEST_CUSTOMER, TEST_ASSET, TEST_AMOUNT);
 
         // assert
-        assertThat(asset.getUsableSize()).isEqualTo(TEST_INITIAL.add(TEST_AMOUNT));
+        assertThat(asset.getUsableSize()).isEqualTo(TEST_INITIAL + TEST_AMOUNT);
         verify(assetRepository, times(1)).save(asset);
     }
 

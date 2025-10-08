@@ -6,7 +6,6 @@ import com.brokage.challenge.service.AssetService;
 import com.brokage.challenge.service.OrderCancellationStrategy;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 
 @Service
 public class SellOrderCancellationStrategy implements OrderCancellationStrategy {
@@ -23,7 +22,7 @@ public class SellOrderCancellationStrategy implements OrderCancellationStrategy 
 
     @Override
     public void refundUsableBalance(Order order) {
-        BigDecimal reservedShares = BigDecimal.valueOf(order.getSize());
+        Long reservedShares = order.getSize();
         assetService.increaseUsableSize(order.getCustomerId(), order.getAssetName(), reservedShares);
     }
 }

@@ -10,7 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,8 +20,8 @@ class AssetControllerTest {
 
     private static final String TEST_CUSTOMER = "cust1";
     private static final String TEST_ASSET = "BTC";
-    private static final BigDecimal TEST_SIZE = new BigDecimal("10.00");
-    private static final BigDecimal TEST_USABLE = new BigDecimal("7.50");
+    private static final Long TEST_SIZE = 10L;
+    private static final Long TEST_USABLE = 7L;
 
     @Mock
     private AssetService assetService;

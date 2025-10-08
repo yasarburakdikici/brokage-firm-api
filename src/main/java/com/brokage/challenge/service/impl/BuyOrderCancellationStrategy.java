@@ -25,7 +25,7 @@ public class BuyOrderCancellationStrategy implements OrderCancellationStrategy {
     @Override
     @Transactional
     public void refundUsableBalance(Order order) {
-        BigDecimal reservedAmount = order.getPrice().multiply(BigDecimal.valueOf(order.getSize()));
-        assetService.increaseUsableSize(order.getCustomerId(), order.getAssetName(), reservedAmount);
+        Long reservedAmount = order.getPrice().multiply(BigDecimal.valueOf(order.getSize())).longValue();
+        assetService.increaseUsableSize(order.getCustomerId(), "TRY", reservedAmount);
     }
 }

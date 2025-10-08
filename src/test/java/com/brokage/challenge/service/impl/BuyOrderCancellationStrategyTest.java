@@ -23,7 +23,7 @@ class BuyOrderCancellationStrategyTest {
     private static final String TEST_ASSET = "BTC";
     private static final Long TEST_SIZE = 2L;
     private static final BigDecimal TEST_PRICE = new BigDecimal("10.50");
-    private static final BigDecimal TEST_RESERVED_AMOUNT = new BigDecimal("21.00");
+    private static final Long TEST_RESERVED_AMOUNT = 21L;
 
     @Mock
     private AssetService assetService;
@@ -61,6 +61,6 @@ class BuyOrderCancellationStrategyTest {
         strategy.refundUsableBalance(order);
 
         // assert
-        verify(assetService, times(1)).increaseUsableSize(TEST_CUSTOMER, TEST_ASSET, TEST_RESERVED_AMOUNT);
+        verify(assetService, times(1)).increaseUsableSize(TEST_CUSTOMER, "TRY", TEST_RESERVED_AMOUNT);
     }
 }

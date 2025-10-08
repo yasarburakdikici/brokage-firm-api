@@ -28,6 +28,12 @@ mvn spring-boot:run
 
 Default port: 8080
 
+### API Documentation
+**Swagger UI**: Interactive API documentation available at:
+- `http://localhost:8080/swagger-ui/index.html`
+- Browse all endpoints, test requests, and view response schemas
+- Auto-generated from Spring Boot annotations
+
 ### API Testing
 **Postman Collection**: Import the provided Postman collection for easy API testing
 - Collection includes all endpoints with example requests/responses
@@ -51,33 +57,10 @@ mvn -q -Dtest=AuditServiceTest test
 
 ### Domain model
 - `Order` fields: `id`, `customerId`, `assetName`, `orderSide (BUY|SELL)`, `size (Long)`, `price (BigDecimal)`, `status (PENDING|EXECUTED|CANCELLED)`, `createDate (Instant)`
-- `Asset` fields: `id`, `customerId`, `assetName`, `size (BigDecimal)`, `usableSize (BigDecimal)`
+- `Asset` fields: `id`, `customerId`, `assetName`, `size (Long)`, `usableSize (Long)`
 - `AuditLog` fields: `id`, `operation`, `entityType`, `entityId`, `customerId`, `details`, `status (SUCCESS|FAILURE)`, `timestamp`, `errorMessage`
 
 ### REST API
-
-#### Audit
-- Get audit logs
-  - `GET /api/audit/logs?customerId=cust1&startDate=2024-01-01T00:00:00Z&endDate=2024-12-31T23:59:59Z`
-  - `GET /api/audit/logs?operation=CREATE_ORDER&startDate=2024-01-01T00:00:00Z&endDate=2024-12-31T23:59:59Z`
-  - `GET /api/audit/logs` (all audit logs)
-  - Response: `List<AuditLog>` with operation, entity type, customer, status, timestamp, details
-  - Example response:
-    ```json
-    [
-      {
-        "id": 1,
-        "operation": "CREATE_ORDER",
-        "entityType": "Order",
-        "entityId": 123,
-        "customerId": "cust1",
-        "details": "Order: BUY BTC Size: 2 Price: 10.50",
-        "status": "SUCCESS",
-        "timestamp": "2024-01-01T10:30:00Z",
-        "errorMessage": null
-      }
-    ]
-    ```
 
 #### Orders
 - Create order
@@ -154,10 +137,6 @@ mvn -q -Dtest=AuditServiceTest test
   - Success/failure status with error messages
   - Precise timestamps for compliance tracking
 - **Audit Storage**: All audit data persisted in `audit_logs` table
-- **Compliance Features**:
-  - Query audit logs by customer, operation, or date range
-  - Complete audit trail for regulatory compliance
-  - Error tracking and debugging support
 - **AOP Implementation**: Uses `@Auditable` annotation and `AuditAspect` for non-intrusive audit logging
 
 ### Notes
@@ -200,24 +179,18 @@ The project includes a comprehensive Postman collection with:
   - Delete Order
 - **Assets**
   - List Assets by Customer
-- **Audit**
-  - Get Audit Logs (all logs)
-  - Get Audit Logs by Customer
-  - Get Audit Logs by Operation
-  - Get Audit Logs by Date Range
 
 **Test Scenarios:**
 - ✅ Success cases for all endpoints
 - ❌ Error cases (validation, not found, insufficient balance)
-- 🔍 Audit log verification
 - 📊 Data consistency checks
 
 **Usage:**
-1. Import the Postman collection
-2. Set up environment variables
-3. Start the application (`mvn spring-boot:run`)
-4. Run the collection or individual requests
-5. Verify audit logs are created automatically
+1. Start the application (`mvn spring-boot:run`)
+2. Access Swagger UI at `http://localhost:8080/swagger-ui/index.html`
+3. Or import the Postman collection for testing
+4. Set up environment variables in Postman
+5. Run the collection or individual requests
 
 ### Audit System Architecture
 - **AuditLog Entity**: JPA entity storing audit records with Lombok annotations

@@ -40,15 +40,15 @@ public class BuyCreateOrderProcessor implements CreateOrderProcessor {
                         request.customer() + " does not have a TRY asset."
                 ));
 
-        BigDecimal totalCost = request.price().multiply(BigDecimal.valueOf(request.size()));
+        Long totalCost = request.price().multiply(BigDecimal.valueOf(request.size())).longValue();
 
-        if (tryAsset.getUsableSize().compareTo(totalCost) < 0) {
+        if (tryAsset.getUsableSize() < totalCost) {
             throw new InvalidCustomerException(
                     String.format("Insufficient TRY balance for customer %s.", request.customer())
             );
         }
 
-        tryAsset.setUsableSize(tryAsset.getUsableSize().subtract(totalCost));
+        tryAsset.setUsableSize(tryAsset.getUsableSize() - totalCost);
         assetRepository.save(tryAsset);
 
         return saveOrder(request);

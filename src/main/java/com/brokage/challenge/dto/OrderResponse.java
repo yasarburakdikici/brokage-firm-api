@@ -7,6 +7,7 @@ import com.brokage.challenge.enums.OrderSide;
 import com.brokage.challenge.enums.OrderStatus;
 
 public record OrderResponse(
+            Long id,
             String customerId,
             String asset,
             OrderSide side,

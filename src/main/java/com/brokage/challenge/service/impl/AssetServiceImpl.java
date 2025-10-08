@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import com.brokage.challenge.service.AssetService;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -21,10 +20,10 @@ public class AssetServiceImpl implements AssetService {
 
     @Transactional
     @Override
-    public void increaseUsableSize(String customerId, String assetName, BigDecimal amount) {
+    public void increaseUsableSize(String customerId, String assetName, Long amount) {
         Asset asset = assetRepository.findByCustomerIdAndAssetName(customerId, assetName)
                 .orElseThrow(() -> new InvalidAssetException(String.format("Customer %s does not have the asset: %s", customerId, assetName)));
-        asset.setUsableSize(asset.getUsableSize().add(amount));
+        asset.setUsableSize(asset.getUsableSize() + amount);
         assetRepository.save(asset);
     }
 

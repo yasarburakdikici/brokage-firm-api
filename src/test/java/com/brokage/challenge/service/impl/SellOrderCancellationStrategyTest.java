@@ -23,7 +23,7 @@ class SellOrderCancellationStrategyTest {
     private static final String TEST_ASSET = "BTC";
     private static final Long TEST_SIZE = 2L;
     private static final BigDecimal TEST_PRICE = new BigDecimal("10.50");
-    private static final BigDecimal TEST_RESERVED_SHARES = BigDecimal.valueOf(TEST_SIZE);
+    private static final Long TEST_RESERVED_SHARES = TEST_SIZE;
 
     @Mock
     private AssetService assetService;
